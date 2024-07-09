@@ -9,7 +9,7 @@ interface AlertType {
 }
 
 interface UseAlertsType {
-  addAlert: (alert: Omit<AlertType, 'id'>) => void;
+  addAlert: (alert: Omit<AlertType, "id">) => void;
   clearAlerts: () => void;
 }
 interface ComponentProps {
@@ -19,15 +19,44 @@ interface ComponentProps {
 const Page2: React.FC<ComponentProps> = ({ useAlerts }) => {
   const { addAlert } = useAlerts?.() || {};
   
+  const apiEndpoint = import.meta.env.VITE_EXAMPLE_API;
+
+  const handleEndpointExample = useCallback(() => {
+    fetch(apiEndpoint + 'pokemon/1')
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log('funziona!', data);
+        // Qui puoi fare qualcosa con i dati ricevuti
+      })
+      .catch((error) => {
+        console.error(
+          "There has been a problem with your fetch operation:",
+          error
+        );
+      });
+  }
+  , [apiEndpoint]);
 
   const handleTryEvents = useCallback(() => {
     console.log("Button pressed & event sent!");
     const initialFormData: AlertType = {
-      severity: "warning", message: "", timeout: 0,
-      id: ""
+      severity: "warning",
+      message: "",
+      timeout: 0,
+      id: "",
     };
     window.dispatchEvent(new CustomEvent("TRY_EVENT", { detail: "ci sono!" }));
-    addAlert?.({ ...initialFormData, message: "This is an alert message in Warning Type called from remote component but using context from the shell app" });
+    addAlert?.({
+      ...initialFormData,
+      message:
+        "This is an alert message in Warning Type called from remote component but using context from the shell app",
+    });
+    handleEndpointExample();
   }, [addAlert]);
 
   return (
